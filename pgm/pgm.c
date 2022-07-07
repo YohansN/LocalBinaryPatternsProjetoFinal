@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//#include <functions.c>
+
 struct pgm
 {
 	int tipo;
@@ -27,13 +29,9 @@ int main(int argc, char *argv[])
 
 	readPGMImage(&img, argv[1]);
 
-	// Nosso trabalho
-	// PercorrerVetor(&img);
+	writePGMImage(&img, argv[2]);
 
-	// Fim do nosso trabalho
-	// writePGMImage(&img, argv[2]);
-
-	// viewPGMImage(&img);
+	viewPGMImage(&img);
 
 	PercorrerVetor(&img);
 
@@ -134,7 +132,7 @@ void viewPGMImage(struct pgm *pio)
 	printf("Dimensões: [%d %d]\n", pio->c, pio->r);
 	printf("Max: %d\n", pio->mv);
 
-	for (int k = 0; k < (pio->r * pio->c); k++)
+	for (int k = 0; k < (2 * pio->c); k++) //(pio->r * pio->c)
 	{
 		if (!(k % pio->c))
 			printf("\n");
@@ -147,10 +145,57 @@ void PercorrerVetor(struct pgm *pio)
 {
 	int i, j = 0;
 	int v[3][3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	for (i = 1; i < 2; i++) // A linha mais importante
+	{
+		if ((pio->pData + i) == pio->pData)
+		{
+			v[0][0] = 0; // zera os tres de cima
+			v[0][1] = 0;
+			v[0][2] = 0;
+
+			v[1][0] = 0; // zera os dois da esquerda
+			v[2][0] = 0;
+
+			v[1][1] = *(pio->pData); // preenche os valores
+
+			v[1][2] = *(pio->pData + 1);
+			v[2][1] = *(pio->pData + pio->c);
+			v[2][2] = *(pio->pData + pio->c + 1);
+		}
+		if ((pio->pData + i) < (pio->pData + pio->c - 1))
+		{				 // Verifica caso o numero da linha de cima seja zero e os laterais nao.
+			v[0][0] = 0; // zera os tres de cima
+			v[0][1] = 0;
+			v[0][2] = 0;
+
+			v[1][0] = *(pio->pData + i - 1); // zera os dois da esquerda
+			v[2][0] = *(pio->pData + pio->c - 1 + i);
+
+			v[1][1] = *(pio->pData + i); // preenche os valores
+			v[1][2] = *(pio->pData + i + 1);
+			v[2][1] = *(pio->pData + pio->c + i);
+			v[2][2] = *(pio->pData + pio->c + 1 + i);
+		}
+	}
+
 	for (i = 0; i < 256; i++) // A linha mais importante
 	{
+
 		j = -4;
-		for (int k = 0; k <= 2; k++)
+	}
+	i, j = 0;
+	printf("Nossa matriz: \n");
+	for (i = 0; i <= 2; i++)
+	{ // mostra a matriz gerada
+		for (j = 0; j <= 2; j++)
+		{
+			printf("[  %d  ]", v[i][j]);
+		}
+		printf("\n ");
+	}
+}
+/*for (int k = 0; k <= 2; k++)
 		{
 			for (int l = 0; l <= 2; l++)
 			{
@@ -165,16 +210,4 @@ void PercorrerVetor(struct pgm *pio)
 				}
 				j++;
 			}
-		}
-	}
-	i, j = 0;
-	printf("Nossa matriz: \n");
-	for (i = 0; i <= 2; i++)
-	{ // mostra a matriz gerada
-		for (j = 0; j <= 2; j++)
-		{
-			printf("[  %d  ]", v[i][j]);
-		}
-		printf("\n ");
-	}
-}
+		}*/
