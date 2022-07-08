@@ -132,7 +132,7 @@ void viewPGMImage(struct pgm *pio)
 	printf("Dimensões: [%d %d]\n", pio->c, pio->r);
 	printf("Max: %d\n", pio->mv);
 
-	for (int k = 0; k < (2 * pio->c); k++) //(pio->r * pio->c)
+	for (int k = 0; k < (pio->r * pio->c); k++) //(pio->r * pio->c)
 	{
 		if (!(k % pio->c))
 			printf("\n");
@@ -146,8 +146,9 @@ void PercorrerVetor(struct pgm *pio)
 	int i, j = 0;
 	int v[3][3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-	for (i = 1; i < 2; i++) // A linha mais importante
+	for (i = 1; i <= ((pio->c-1) * (pio->r)); i++) // A linha mais importante
 	{
+		//Canto superior esquerdo
 		if ((pio->pData + i) == pio->pData)
 		{
 			v[0][0] = 0; // zera os tres de cima
@@ -163,6 +164,9 @@ void PercorrerVetor(struct pgm *pio)
 			v[2][1] = *(pio->pData + pio->c);
 			v[2][2] = *(pio->pData + pio->c + 1);
 		}
+
+
+		//Centro primeira linha
 		if ((pio->pData + i) < (pio->pData + pio->c - 1))
 		{				 // Verifica caso o numero da linha de cima seja zero e os laterais nao.
 			v[0][0] = 0; // zera os tres de cima
@@ -177,6 +181,57 @@ void PercorrerVetor(struct pgm *pio)
 			v[2][1] = *(pio->pData + pio->c + i);
 			v[2][2] = *(pio->pData + pio->c + 1 + i);
 		}
+
+		//Canto superior direito
+		if((pio->pData + i) == (pio->pData + pio->c - 1)){
+			v[0][0] = 0; // zera os tres de cima
+			v[0][1] = 0;
+			v[0][2] = 0;
+			
+			v[1][2] = 0; // zera os dois da direita
+			v[2][2] = 0;
+			
+			v[1][1] = *(pio->pData + i); // preenche os valores
+			
+			v[2][1] = *(pio->pData + pio->c + i);
+			v[1][0] = *(pio->pData - 1 + i); // preenche os valores da esquerda
+			v[2][0] = *(pio->pData + pio->c + i - 1);
+		}
+		
+		//Canto inferior esquerdo
+		if((pio->pData + i) == (pio->pData + (pio->c * (pio->r - 1)))){
+			v[2][0] = 0; // zera os tres de baixo
+			v[2][1] = 0;
+			v[2][2] = 0;
+
+			v[0][0] = 0; //zera os dois da esquerda
+			v[1][0] = 0;
+
+			v[1][1] = *(pio->pData + i); // preenche os valores
+			
+			v[0][1] = *(pio->pData - pio->c + i);
+			v[0][2] = *(pio->pData - pio->c + 1 + i); // 
+			v[1][2] = *(pio->pData + i + 1);
+		}
+		
+		//Canto inferior direito
+		if((pio->pData + i) == (pio->pData + ((pio->c-1) * pio->r))){
+			v[0][2] = 0; // zera os tres de esquerda
+			v[1][2] = 0;
+			v[2][2] = 0;
+
+			v[2][0] = 0; //zera os dois de baixo
+			v[2][1] = 0;
+
+			v[1][1] = *(pio->pData + i); // preenche os valores
+			
+			v[0][0] = *(pio->pData - pio->c + i - 1);
+			v[0][1] = *(pio->pData - pio->c + i); // 
+			v[1][0] = *(pio->pData + i - 1);
+		}
+
+		//
+		
 	}
 
 	for (i = 0; i < 256; i++) // A linha mais importante
