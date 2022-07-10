@@ -132,7 +132,7 @@ void viewPGMImage(struct pgm *pio)
 	printf("Dimensões: [%d %d]\n", pio->c, pio->r);
 	printf("Max: %d\n", pio->mv);
 
-	for (int k = 0; k < pio->c*pio->r; k++) //(pio->r * pio->c)
+	for (int k = 0; k < pio->c*8; k++) //(pio->r * pio->c)
 	{
 		if (!(k % pio->c))
 			printf("\n");
@@ -145,7 +145,7 @@ void PercorrerVetor(struct pgm *pio){
 	int i, j = 0;
 	int v[3][3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-	for (i = 0; i <= (pio->c*256)+1; i++) // A linha mais importante -> original (i = 0; i < pio->c * pio->r; i++)
+	for (i = 0; i <= (pio->c*5)+2; i++) // A linha mais importante -> original (i = 0; i < pio->c * pio->r; i++)
 	{
 		//Canto superior esquerdo - Caso 1 OK
 		if ((pio->pData + i) == pio->pData)
@@ -198,28 +198,44 @@ void PercorrerVetor(struct pgm *pio){
 		}
 
 		//Coluna centro direita - Caso 4 OK
-		for(int k = 1; k < 255; k++) {
+		for(int k = 1; k < (pio->r * pio->c); k++) {
 			if(((pio->pData + i) == (pio->pData +(pio->c * k) + 1)) && (pio->pData + i != pio->pData)) { //((pio->pData + pio->c-1 + (pio->c * k))
 				v[0][0] = 0; // zera os tres de esquerda
 				v[1][0] = 0;
 				v[2][0] = 0;
 				
-				v[0][1] = *(pio->pData - pio->c + i + 1);
-				v[0][2] = *(pio->pData - pio->c + i + 2); 
+				v[0][1] = *(pio->pData - pio->c + i - 1);
+				v[0][2] = *(pio->pData - pio->c + i ); 
 
 				v[1][1] = *(pio->pData + i - 1);  // preenche os valores
 			
 				v[1][2] = *(pio->pData + i);
-				v[2][1] = *(pio->pData + pio->c + i );
+				v[2][1] = *(pio->pData + pio->c + i -1);
 				v[2][2] = *(pio->pData + i + pio->c );
 				break;
 			}
 		}
 
-		// Centro - Caso 5
-
+		// Centro - Caso 5 - ERROR
+		for(int k = (pio->c+2); k < (pio->r*pio->c); k++) {
+			if(((pio->pData + i) == (pio->pData + k * pio->c )) && (pio->pData + i != pio->pData + pio->c)) {
+				k += 2;
+			}
+			else{
+				v[0][0] = *(pio->pData - pio->c + i - 1);
+				v[1][0] = *(pio->pData + i - 2); //possivel erro
+				v[2][0] = *(pio->pData + pio->c - 1 + i); //erro
+				v[0][1] = *(pio->pData - pio->c + i - 1);
+				v[0][2] = *(pio->pData - pio->c + i );
+				v[1][1] = *(pio->pData + i);
+				v[1][2] = *(pio->pData + i + 1 );
+				v[2][1] = *(pio->pData + pio->c + i + 1);
+				v[2][2] = *(pio->pData + i + pio->c + 1);
+			}
+		}
+		
 		//Coluna centro direita - Caso 6 OK
-		for(int k = 1; k < (pio->r); k++) {
+		for(int k = 1; k < (pio->r*pio->c); k++) {
 			if(((pio->pData + i) == (pio->pData + k * pio->c )) && (pio->pData + i != pio->pData + pio->c)) { //((pio->pData + pio->c-1 + (pio->c * k))
 				v[0][2] = 0; // zera os tres de esquerda
 				v[1][2] = 0;
@@ -254,7 +270,20 @@ void PercorrerVetor(struct pgm *pio){
 		}
 
 		//Centro linha inferior - Caso 8
+		if((pio->pData + i) > (pio->pData + (pio->c * (pio->r - 1))) && (pio->pData + i) < (pio->pData + (pio->c*pio->r) - 1))  {
+			v[2][0] = 0; // zera os tres de baixo
+			v[2][1] = 0;
+			v[2][2] = 0;
+			
+			v[1][1] = *(pio->pData + i); // preenche os valores
 
+			v[0][0] = *(pio->pData - pio->c + i - 1);
+			v[0][1] = *(pio->pData - pio->c + i);
+			v[0][2] = *(pio->pData - pio->c + 1 + i);
+			v[1][0] = *(pio->pData + i - 1);
+			v[1][2] = *(pio->pData + i + 1);			
+		}
+		
 		//Canto inferior direito - Caso 9 OK
 		if((pio->pData + i) == (pio->pData + (pio->c * pio->r))){
 			v[0][2] = 0; // zera os tres de esquerda
@@ -270,6 +299,8 @@ void PercorrerVetor(struct pgm *pio){
 			v[0][1] = *(pio->pData - pio->c + i);
 			v[1][0] = *(pio->pData + i - 2);
 		}
+
+		
 	}
 
 	printf("%d\n", pio->c);
