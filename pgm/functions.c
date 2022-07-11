@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <pgm.c>
 
 
-int histogramaVetor(int vetorDec[], int c, int r){
-    int total =  c * r;
+int histogramaVetor(struct pgm *pio, int vetorDec[]){
+    int total =  pio->c * pio->r;
     int histograma[total];
+    int vetorDec[total];
 
     for (int i = 0; i < total; i++)
     {
@@ -14,7 +16,7 @@ int histogramaVetor(int vetorDec[], int c, int r){
 
     for (int i = 0; i < total; i++)
     {
-        for (int j = 0; j < total; j++)
+        for (int j = 0; j < 255; j++)
         {
             if (i == vetorDec[j])
             {
