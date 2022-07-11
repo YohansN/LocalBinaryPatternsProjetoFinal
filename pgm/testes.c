@@ -1,6 +1,7 @@
 /* Ambiente de testes controlados com uma matriz propria */
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 struct pgm
 {
@@ -12,6 +13,7 @@ struct pgm
 };
 
 void PercorrerVetor(struct pgm *);
+int ConversorBinDec(int);
 int main()
 {
 	struct pgm pio;
@@ -36,7 +38,7 @@ int main()
 
 void PercorrerVetor(struct pgm *pio)
 {
-	int i, j = 0;
+	int i, j, bin, saida = 0;
 	int v[3][3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 	for (i = 1; i < 2; i++) // A linha mais importante -> original (i = 0; i < pio->c * pio->r; i++)
@@ -208,7 +210,7 @@ void PercorrerVetor(struct pgm *pio)
 			v[2][0] = 0; // zera os dois de baixo
 			v[2][1] = 0;
 
-			v[1][1] = *(pio->pData + i); // preenche os valores
+			v[1][1] = *(pio->pData + i);
 
 			v[0][0] = *(pio->pData - pio->c + i - 1);
 			v[0][1] = *(pio->pData - pio->c + i);
@@ -217,19 +219,63 @@ void PercorrerVetor(struct pgm *pio)
 		}
 
 		printf("ATUAL: %d\n", *(pio->pData + i));
+		printf("\n Nossa matriz: \n");
+		for (i = 0; i <= 2; i++)
+		{ // mostra a matriz gerada
+			for (j = 0; j <= 2; j++)
+			{
+				printf("[  %d  ]", v[i][j]);
+			}
+			printf("\n");
+		}
+
+		for (int a = 0; a < 3; a++)
+		{
+			for (int b = 0; b < 3; b++)
+			{
+				if (a == 1 && b == 1)
+				{
+					// Nada
+				}
+				else
+				{
+					if (v[1][1] > v[a][b])
+					{
+						v[a][b] = 0;
+					}
+					else
+					{
+						v[a][b] = 1;
+					}
+				}
+			}
+		}
 	}
-
-	// printf("%d\n", pio->c);
-	// printf("%d", pio->r);
-
-	i, j = 0;
-	printf("\n Nossa matriz: \n");
+	bin = (v[0][0] * pow(10, 0)) + (v[0][1] * pow(10, 1)) + (v[0][2] * pow(10, 2)) + (v[1][2] * pow(10, 3)) + (v[2][2] * pow(10, 4)) + (v[2][1] * pow(10, 5)) + (v[2][0] * pow(10, 6)) + (v[1][0] * pow(10, 7));
+	printf("\n Nossa binarizada: \n");
 	for (i = 0; i <= 2; i++)
-	{ // mostra a matriz gerada
+	{
 		for (j = 0; j <= 2; j++)
 		{
 			printf("[  %d  ]", v[i][j]);
 		}
 		printf("\n");
 	}
+	printf("Binário: %d\n", bin);
+	saida = ConversorBinDec(bin);
+	printf("Decimal: %d\n", saida);
+}
+int ConversorBinDec(int bin)
+{
+	int total = 0;
+	int potenc = 1;
+
+	while (bin > 0)
+	{
+		total += bin % 10 * potenc;
+		bin = bin / 10;
+		potenc = potenc * 2;
+	}
+
+	return total;
 }
