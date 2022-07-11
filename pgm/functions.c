@@ -37,3 +37,4 @@ int escreverArquivo(){
     fprintf(file, " \n"); //Aqui, entre "" sera passado as linhas que devem ser salvas no arquivo.
     fclose(file);
 }
+
