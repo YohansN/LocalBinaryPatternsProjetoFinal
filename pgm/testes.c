@@ -12,8 +12,8 @@ struct pgm
 	unsigned char *pData; // <- Depois do readPGMImage os dados que utilizaremos estaram salvos nesse ponteiro.
 };
 
-void PercorrerVetor(struct pgm *);
-int ConversorBinDec(int);
+void PercorrerMatriz(struct pgm *);
+int conversorBinDec(int);
 int main()
 {
 	struct pgm pio;
@@ -33,10 +33,10 @@ int main()
 		printf("[ %d ]", *(pio.pData + k));
 	}
 	printf("\n");
-	PercorrerVetor(&pio);
+	PercorrerMatriz(&pio);
 }
 
-void PercorrerVetor(struct pgm *pio)
+void PercorrerMatriz(struct pgm *pio)
 {
 	int i, j, bin, saida = 0;
 	int v[3][3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -262,10 +262,10 @@ void PercorrerVetor(struct pgm *pio)
 		printf("\n");
 	}
 	printf("Binário: %d\n", bin);
-	saida = ConversorBinDec(bin);
+	saida = conversorBinDec(bin);
 	printf("Decimal: %d\n", saida);
 }
-int ConversorBinDec(int bin)
+int conversorBinDec(int bin)
 {
 	int total = 0;
 	int potenc = 1;

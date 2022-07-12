@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include <functions.c>
-
 struct pgm
 {
 	int tipo;
@@ -15,7 +13,8 @@ struct pgm
 void readPGMImage(struct pgm *, char *);
 void viewPGMImage(struct pgm *);
 void writePGMImage(struct pgm *, char *);
-void PercorrerVetor(struct pgm *);
+void PercorrerMatriz(struct pgm *);
+
 int main(int argc, char *argv[])
 {
 
@@ -33,7 +32,7 @@ int main(int argc, char *argv[])
 
 	viewPGMImage(&img);
 
-	PercorrerVetor(&img);
+	PercorrerMatriz(&img);
 
 	return 0;
 }
@@ -141,7 +140,7 @@ void viewPGMImage(struct pgm *pio)
 	printf("\n");
 }
 
-void PercorrerVetor(struct pgm *pio)
+void PercorrerMatriz(struct pgm *pio)
 {
 	int i, j = 0;
 	int v[3][3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
