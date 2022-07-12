@@ -12,13 +12,16 @@ struct pgm
 	unsigned char *pData; // <- Depois do readPGMImage os dados que utilizaremos estaram salvos nesse ponteiro.
 };
 
-void PercorrerMatriz(struct pgm *);
-int conversorBinDec(int);
+int *PercorrerVetor(struct pgm *);
+int ConversorBinDec(int);
+void histogramaVetor(struct pgm *, int *);
+
 int main()
 {
 	struct pgm pio;
 	pio.c = 10;
 	pio.r = 10;
+	pio.mv = 255;
 
 	for (int i = 0; i < pio.c * pio.r; i++)
 	{
@@ -33,15 +36,18 @@ int main()
 		printf("[ %d ]", *(pio.pData + k));
 	}
 	printf("\n");
-	PercorrerMatriz(&pio);
+	
+	
+	histogramaVetor(&pio, PercorrerVetor(&pio));
 }
 
-void PercorrerMatriz(struct pgm *pio)
+int *PercorrerVetor(struct pgm *pio)
 {
-	int i, j, bin, saida = 0;
+	int i, j, bin, saidaDec = 0;
 	int v[3][3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-	for (i = 1; i < 2; i++) // A linha mais importante -> original (i = 0; i < pio->c * pio->r; i++)
+	int *vetorsaida;
+	vetorsaida = malloc((pio->c * pio->r) * sizeof(int));
+	for (i = 0; i < pio->c * pio->r; i++) // A linha mais importante -> original (i = 0; i < pio->c * pio->r; i++)
 	{
 		// Canto superior esquerdo - Caso 1 - Funcionando corretamente (10/07)
 		if ((pio->pData + i) == pio->pData)
@@ -218,17 +224,6 @@ void PercorrerMatriz(struct pgm *pio)
 			printf("CASO 9\n");
 		}
 
-		printf("ATUAL: %d\n", *(pio->pData + i));
-		printf("\n Nossa matriz: \n");
-		for (i = 0; i <= 2; i++)
-		{ // mostra a matriz gerada
-			for (j = 0; j <= 2; j++)
-			{
-				printf("[  %d  ]", v[i][j]);
-			}
-			printf("\n");
-		}
-
 		for (int a = 0; a < 3; a++)
 		{
 			for (int b = 0; b < 3; b++)
@@ -250,32 +245,59 @@ void PercorrerMatriz(struct pgm *pio)
 				}
 			}
 		}
-	}
-	bin = (v[0][0] * pow(10, 0)) + (v[0][1] * pow(10, 1)) + (v[0][2] * pow(10, 2)) + (v[1][2] * pow(10, 3)) + (v[2][2] * pow(10, 4)) + (v[2][1] * pow(10, 5)) + (v[2][0] * pow(10, 6)) + (v[1][0] * pow(10, 7));
-	printf("\n Nossa binarizada: \n");
-	for (i = 0; i <= 2; i++)
+
+		bin = (v[0][0] * pow(10, 0)) + (v[0][1] * pow(10, 1)) + (v[0][2] * pow(10, 2)) + (v[1][2] * pow(10, 3)) + (v[2][2] * pow(10, 4)) + (v[2][1] * pow(10, 5)) + (v[2][0] * pow(10, 6)) + (v[1][0] * pow(10, 7));
+		
+		printf("Binário: %d\n", bin);
+		saidaDec = ConversorBinDec(bin);
+		printf("Decimal: %d\n", saidaDec);
+
+		*(vetorsaida + i) = saidaDec;
+	} 
+	
+	for (i = 0; i < pio->c * pio->r; i++)
 	{
-		for (j = 0; j <= 2; j++)
-		{
-			printf("[  %d  ]", v[i][j]);
-		}
-		printf("\n");
+		printf("%d, ", *(vetorsaida + i));
 	}
-	printf("Binário: %d\n", bin);
-	saida = conversorBinDec(bin);
-	printf("Decimal: %d\n", saida);
+	return vetorsaida;
 }
-int conversorBinDec(int bin)
+
+int ConversorBinDec(int bin)
 {
-	int total = 0;
+	int dec = 0;
 	int potenc = 1;
 
 	while (bin > 0)
 	{
-		total += bin % 10 * potenc;
+		dec += bin % 10 * potenc;
 		bin = bin / 10;
 		potenc = potenc * 2;
 	}
 
-	return total;
+	return dec;
+}
+
+//modificar o vetor e troca-lo por ponteiro
+void histogramaVetor(struct pgm *pio, int *vetorsaida){
+    int total =  pio->c * pio->r;
+    int *histograma;
+	histograma = malloc( pio->mv * sizeof(int));
+	
+	for(int i = 0; i <= pio->mv; i++) {
+		*(histograma + i) = 0;
+	}
+	for(int i = 0; i <= pio->mv; i++) {
+		for(int j = 0; j <= total; j++){
+			if(i == *(vetorsaida + j)) {
+				*(histograma + i) += 1;
+			}
+		}
+	}
+    
+    //Mostrando histograma;
+    puts("\nHistograma:");
+    for(int i = 0; i <= 255; i++){
+        printf(" %d: [%d] ",i, *(histograma + i));
+    }
+    
 }
