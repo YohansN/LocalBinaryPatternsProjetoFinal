@@ -2,6 +2,8 @@
     "makefile.extensionOutputFolder": "./.vscode",
     "files.associations": {
         "dirent.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "functions.h": "c"
     }
 }

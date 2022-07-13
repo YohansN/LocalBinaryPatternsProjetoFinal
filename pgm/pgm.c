@@ -13,45 +13,26 @@ struct pgm
 void readPGMImage(struct pgm *, char *);
 void viewPGMImage(struct pgm *);
 void writePGMImage(struct pgm *, char *);
+void PercorrerMatriz(struct pgm *);
 
 int main(int argc, char *argv[])
 {
 
 	struct pgm img;
 
-	DIR *d;
-    struct dirent *dir;
-    d = opendir("./imgs");
-    if (d)
-    {
-        while ((dir = readdir(d)) != NULL)
-        {
-            
-            char primeiro = dir->d_name[0];
-            char *nome;
-            int tamNome = 0;
-            tamNome = strlen(dir->d_name);
-            nome = malloc(tamNome * sizeof(char));
-            strcpy(nome, dir->d_name);
-            printf("%s", nome);
-            readPGMImage(&img, nome);
-            
-			
+	if (argc != 3)
+	{
+		printf("Formato: \n\t %s <imagemEntrada.pgm> <imagemSaida.pgm>\n", argv[0]);
+		exit(1);
+	}
 
-						// Leitura da Imagem -PGM
+	readPGMImage(&img, argv[1]);
 
-						// Processar - Medir o tempo apenas nesta etapa.
-						
-						// Saída.
-        }
-        closedir(d);
-    }
-
-	
+	writePGMImage(&img, argv[2]);
 
 	viewPGMImage(&img);
 
-
+	PercorrerMatriz(&img);
 
 	return 0;
 }

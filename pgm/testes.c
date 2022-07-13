@@ -14,8 +14,8 @@ struct pgm
 
 int *PercorrerVetor(struct pgm *);
 int ConversorBinDec(int);
-void histogramaVetor(struct pgm *, int *);
-
+void histogramaVetor(struct pgm *, int *, char);
+//int escreverArquivo(int *, char );
 int main()
 {
 
@@ -23,25 +23,6 @@ int main()
 	pio.c = 10;
 	pio.r = 10;
 	pio.mv = 255;
-
-	DIR *d;
-    struct dirent *dir;
-    d = opendir("./imgs");
-    if (d)
-    {
-        while ((dir = readdir(d)) != NULL)
-        {
-            printf("%s\n", dir->d_name);
-
-			
-						// Leitura da Imagem -PGM
-
-						// Processar - Medir o tempo apenas nesta etapa.
-						
-						// Saída.
-        }
-        closedir(d);
-    }
 
 
 	for (int i = 0; i < pio.c * pio.r; i++)
@@ -59,7 +40,10 @@ int main()
 	printf("\n");
 	
 	
-	histogramaVetor(&pio, PercorrerVetor(&pio));
+	
+	//histogramaVetor(&pio, &vetorSaida);
+	//escreverArquivo(hist, '0');
+	
 }
 
 void readPGMImage(struct pgm *pio, char *filename)
@@ -151,10 +135,11 @@ void writePGMImage(struct pgm *pio, char *filename)
 
 int *PercorrerVetor(struct pgm *pio)
 {
+	int *vetorSaida;
+	vetorSaida = (int* )malloc(pio->c * pio->r * sizeof(int));
 	int i, j, bin, saidaDec = 0;
 	int v[3][3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int *vetorsaida;
-	vetorsaida = malloc((pio->c * pio->r) * sizeof(int));
+	
 	for (i = 0; i < pio->c * pio->r; i++) // A linha mais importante -> original (i = 0; i < pio->c * pio->r; i++)
 	{
 		// Canto superior esquerdo - Caso 1 - Funcionando corretamente (10/07)
@@ -172,7 +157,7 @@ int *PercorrerVetor(struct pgm *pio)
 			v[1][2] = *(pio->pData + 1);
 			v[2][1] = *(pio->pData + pio->c);
 			v[2][2] = *(pio->pData + pio->c + 1);
-			printf("CASO 1\n");
+			
 		}
 
 		// Centro primeira linha - Caso 2 - Funcionando corretamente (10/07)
@@ -189,7 +174,7 @@ int *PercorrerVetor(struct pgm *pio)
 			v[1][2] = *(pio->pData + i + 1);
 			v[2][1] = *(pio->pData + pio->c + i);
 			v[2][2] = *(pio->pData + pio->c + 1 + i);
-			printf("CASO 2\n");
+			
 		}
 
 		// Canto superior direito - Caso 3 - Funcionando corretamente (10/07)
@@ -207,7 +192,7 @@ int *PercorrerVetor(struct pgm *pio)
 			v[2][1] = *(pio->pData + pio->c + i);
 			v[1][0] = *(pio->pData - 1 + i); // preenche os valores da esquerda
 			v[2][0] = *(pio->pData + pio->c + i - 1);
-			printf("CASO 3\n");
+			
 		}
 
 		// Coluna centro esquerda - Caso 4 - Funcionando corretamente (10/07)
@@ -227,7 +212,7 @@ int *PercorrerVetor(struct pgm *pio)
 				v[1][2] = *(pio->pData + i + 1);
 				v[2][1] = *(pio->pData + pio->c + i);
 				v[2][2] = *(pio->pData + i + pio->c + 1);
-				printf("CASO 4\n");
+				
 				break;
 			}
 		}
@@ -274,7 +259,7 @@ int *PercorrerVetor(struct pgm *pio)
 
 				v[2][0] = *(pio->pData + pio->c + i - 1);
 				v[2][1] = *(pio->pData + i + pio->c);
-				printf("CASO 6\n");
+				
 				break;
 			}
 		}
@@ -294,7 +279,7 @@ int *PercorrerVetor(struct pgm *pio)
 			v[0][1] = *(pio->pData - pio->c + i);
 			v[0][2] = *(pio->pData - pio->c + 1 + i);
 			v[1][2] = *(pio->pData + i + 1);
-			printf("CASO 7\n");
+			
 		}
 
 		// Centro linha inferior - Caso 8 - Funcionando corretamente (10/07)
@@ -311,7 +296,7 @@ int *PercorrerVetor(struct pgm *pio)
 			v[0][2] = *(pio->pData - pio->c + 1 + i);
 			v[1][0] = *(pio->pData + i - 1);
 			v[1][2] = *(pio->pData + i + 1);
-			printf("CASO 8\n");
+			
 		}
 
 		// Canto inferior direito - Caso 9 - Funcionando corretamente (10/07)
@@ -329,7 +314,7 @@ int *PercorrerVetor(struct pgm *pio)
 			v[0][0] = *(pio->pData - pio->c + i - 1);
 			v[0][1] = *(pio->pData - pio->c + i);
 			v[1][0] = *(pio->pData + i - 1);
-			printf("CASO 9\n");
+		
 		}
 
 		for (int a = 0; a < 3; a++)
@@ -356,18 +341,19 @@ int *PercorrerVetor(struct pgm *pio)
 
 		bin = (v[0][0] * pow(10, 0)) + (v[0][1] * pow(10, 1)) + (v[0][2] * pow(10, 2)) + (v[1][2] * pow(10, 3)) + (v[2][2] * pow(10, 4)) + (v[2][1] * pow(10, 5)) + (v[2][0] * pow(10, 6)) + (v[1][0] * pow(10, 7));
 		
-		printf("Binário: %d\n", bin);
+		
 		saidaDec = ConversorBinDec(bin);
-		printf("Decimal: %d\n", saidaDec);
+		
 
-		*(vetorsaida + i) = saidaDec;
+		*(vetorSaida + i) = saidaDec;
 	} 
 	
 	for (i = 0; i < pio->c * pio->r; i++)
 	{
-		printf("%d, ", *(vetorsaida + i));
+		
+		printf("%d, ", *(vetorSaida + i));
 	}
-	return vetorsaida;
+	return vetorSaida;
 }
 
 int ConversorBinDec(int bin)
@@ -386,7 +372,7 @@ int ConversorBinDec(int bin)
 }
 
 
-void histogramaVetor(struct pgm *pio, int *vetorsaida){
+void histogramaVetor(struct pgm *pio, int *vetorSaida, char primeiro){
     int total =  pio->c * pio->r;
     int *histograma;
 	histograma = malloc( pio->mv * sizeof(int));
@@ -396,7 +382,7 @@ void histogramaVetor(struct pgm *pio, int *vetorsaida){
 	}
 	for(int i = 0; i <= pio->mv; i++) {
 		for(int j = 0; j <= total; j++){
-			if(i == *(vetorsaida + j)) {
+			if(i == *(vetorSaida + j)) {
 				*(histograma + i) += 1;
 			}
 		}
@@ -407,5 +393,25 @@ void histogramaVetor(struct pgm *pio, int *vetorsaida){
     for(int i = 0; i <= 255; i++){
         printf(" %d: [%d] ",i, *(histograma + i));
     }
+	
+    FILE *file;
+    file = fopen("HistogramaFinal.csv","a");//Ver como os dados devem ser gravados pq se for abrir o arquivo para cada linha devemos trocar o "w" por "a" para que ele nao sobreescreva e sim adicione.
     
+    if(file == NULL){
+        printf("Ocorreu um erro na aberura do arquivo.");
+        exit(1);
+    }
+	for(int i = 0; i < 256; i++){
+		fprintf(file, "%d,", *(histograma + i)); //Aqui, entre "" sera passado as linhas que devem ser salvas no arquivo.
+	}
+	char aux = '0';
+	if(primeiro == aux){
+		fprintf(file, "0");
+	}
+	else{
+		fprintf(file, "1");
+	}
+	fprintf(file, "\n");
+    
+    fclose(file);
 }
