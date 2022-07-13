@@ -12,6 +12,7 @@ struct pgm
 void readPGMImage(struct pgm *, char *);
 void viewPGMImage(struct pgm *);
 void writePGMImage(struct pgm *, char *);
+int *PercorrerMatriz(struct pgm *);
 
 void readPGMImage(struct pgm *pio, char *filename)
 {
@@ -115,14 +116,16 @@ void viewPGMImage(struct pgm *pio)
 }
 
 //Funcoes proprias:
-int PercorrerMatriz(struct pgm *);
 
-int PercorrerMatriz(struct pgm *pio)
+
+
+int *PercorrerMatriz(struct pgm *pio)
 {
-	int i, j = 0, bin = 0;
+	int i, j, bin, saidaDec = 0;
 	int v[3][3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-	for (i = 0; i <= (pio->c * 5) + 2; i++) // A linha mais importante -> original (i = 0; i < pio->c * pio->r; i++)
+	int *vetorsaida;
+	vetorsaida = malloc((pio->c * pio->r) * sizeof(int));
+	for (i = 0; i < pio->c * pio->r; i++) // A linha mais importante -> original (i = 0; i < pio->c * pio->r; i++)
 	{
 		// Canto superior esquerdo - Caso 1 - Funcionando corretamente (10/07)
 		if ((pio->pData + i) == pio->pData)
@@ -227,7 +230,7 @@ int PercorrerMatriz(struct pgm *pio)
 		// Coluna centro direita - Caso 6 - Funcionando corretamente (10/07)
 		for (int k = 1; k < pio->r; k++)
 		{
-			if (((pio->pData + i) == (pio->pData + k * pio->c - 1)) && (pio->pData + i) != (pio->pData + pio->c - 1) && (pio->pData + i) != (pio->pData + (pio->c * pio->r) - 1))
+			if (((pio->pData + i) == (pio->pData + (k * pio->c) - 1)) && (pio->pData + i) != (pio->pData + pio->c - 1) && (pio->pData + i) != (pio->pData + (pio->c * pio->r) - 1))
 			{				 //((pio->pData + pio->c-1 + (pio->c * k))
 				v[0][2] = 0; // zera os tres da direita
 				v[1][2] = 0;
@@ -291,7 +294,7 @@ int PercorrerMatriz(struct pgm *pio)
 			v[2][0] = 0; // zera os dois de baixo
 			v[2][1] = 0;
 
-			v[1][1] = *(pio->pData + i); // preenche os valores
+			v[1][1] = *(pio->pData + i);
 
 			v[0][0] = *(pio->pData - pio->c + i - 1);
 			v[0][1] = *(pio->pData - pio->c + i);
@@ -299,8 +302,7 @@ int PercorrerMatriz(struct pgm *pio)
 			printf("CASO 9\n");
 		}
 
-        //Binarizacao:
-        for (int a = 0; a < 3; a++)
+		for (int a = 0; a < 3; a++)
 		{
 			for (int b = 0; b < 3; b++)
 			{
@@ -321,9 +323,21 @@ int PercorrerMatriz(struct pgm *pio)
 				}
 			}
 		}
-        bin = (v[0][0] * pow(10, 0)) + (v[0][1] * pow(10, 1)) + (v[0][2] * pow(10, 2)) + (v[1][2] * pow(10, 3)) + (v[2][2] * pow(10, 4)) + (v[2][1] * pow(10, 5)) + (v[2][0] * pow(10, 6)) + (v[1][0] * pow(10, 7));
-	    return bin;
+
+		bin = (v[0][0] * pow(10, 0)) + (v[0][1] * pow(10, 1)) + (v[0][2] * pow(10, 2)) + (v[1][2] * pow(10, 3)) + (v[2][2] * pow(10, 4)) + (v[2][1] * pow(10, 5)) + (v[2][0] * pow(10, 6)) + (v[1][0] * pow(10, 7));
+		
+		printf("Binário: %d\n", bin);
+		saidaDec = ConversorBinDec(bin);
+		printf("Decimal: %d\n", saidaDec);
+
+		*(vetorsaida + i) = saidaDec;
+	} 
+	
+	for (i = 0; i < pio->c * pio->r; i++)
+	{
+		printf("%d, ", *(vetorsaida + i));
 	}
+	return vetorsaida;
 }
 
 int conversorBinDec(int bin)
@@ -340,38 +354,49 @@ int conversorBinDec(int bin)
 	return dec;
 }
 
-int histogramaVetor(struct pgm *pio, int *vetorsaida){
+void histogramaVetor(struct pgm *pio, int *vetorsaida){
     int total =  pio->c * pio->r;
-    int histograma[total];
-    int vetorDec[total];
-
-    for (int i = 0; i < total; i++)
-    {
-        histograma[i] = 0;
+    int *histograma;
+	histograma = malloc( pio->mv * sizeof(int));
+	
+	for(int i = 0; i <= pio->mv; i++) {
+		*(histograma + i) = 0;
+	}
+	for(int i = 0; i <= pio->mv; i++) {
+		for(int j = 0; j <= total; j++){
+			if(i == *(vetorsaida + j)) {
+				*(histograma + i) += 1;
+			}
+		}
+	}
+    
+    //Mostrando histograma;
+    puts("\nHistograma:");
+    for(int i = 0; i <= 255; i++){
+        printf(" %d: [%d] ",i, *(histograma + i));
     }
-
-    for (int i = 0; i < total; i++)
-    {
-        for (int j = 0; j < 255; j++)
-        {
-            if (i == vetorDec[j])
-            {
-                histograma[i]++;
-            }
-        }
-    }
-    return histograma;
+    
 }
 
-int escreverArquivo(){
+int escreverArquivo(int *histograma, char primeiro){
     FILE *file;
-    file = fopen("SaidaFinal.txt","w");//Ver como os dados devem ser gravados pq se for abrir o arquivo para cada linha devemos trocar o "w" por "a" para que ele nao sobreescreva e sim adicione.
+    file = fopen("HistogramaFinal.csv","a");//Ver como os dados devem ser gravados pq se for abrir o arquivo para cada linha devemos trocar o "w" por "a" para que ele nao sobreescreva e sim adicione.
     
     if(file == NULL){
         printf("Ocorreu um erro na aberura do arquivo.");
         exit(1);
     }
-
-    fprintf(file, " \n"); //Aqui, entre "" sera passado as linhas que devem ser salvas no arquivo.
+	for(int i = 0; i < 256; i++){
+		fprintf(file, ("%d",*(histograma + i))); //Aqui, entre "" sera passado as linhas que devem ser salvas no arquivo.
+	}
+	
+	if(primeiro == '0'){
+		fprintf(file, '0');
+	}
+	else{
+		fprintf(file, '1');
+	}
+	fprintf(file, "\n");
+    
     fclose(file);
 }

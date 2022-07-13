@@ -8,7 +8,6 @@ int main(int argc, char *argv[]){
 		printf("Formato: \n\t %s <imagemEntrada.pgm> <imagemSaida.pgm>\n", argv[0]);
 		exit(1);
 	}
-
     
     return 0;
 }

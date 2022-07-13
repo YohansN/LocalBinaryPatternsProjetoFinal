@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <dirent.h>
 
 struct pgm
 {
@@ -22,13 +23,13 @@ void viewPGMImage(struct pgm *pio);
 
 //Funções próprias:
 
-int PercorrerMatriz(struct pgm *pio);
+int *PercorrerMatriz(struct pgm *pio);
 
 int conversorBinDec(int bin);
 
-int histogramaVetor(struct pgm *pio, int vetorDec[]);
+void histogramaVetor(struct pgm *pio, int vetorDec[]);
 
-int escreverArquivo();
+int escreverArquivo(int *histograma, char);
 
 
 #endif
